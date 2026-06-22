@@ -1,0 +1,71 @@
+name: PHP CI
+
+on:
+push:
+branches:
+- main
+- master
+
+pull_request:
+branches:
+- main
+- master
+
+jobs:
+
+test:
+
+```
+runs-on: ubuntu-latest
+
+strategy:
+  matrix:
+    php-version: [8.3]
+
+steps:
+
+  - name: Checkout Repository
+    uses: actions/checkout@v4
+
+  - name: Setup PHP
+    uses: shivammathur/setup-php@v2
+    with:
+      php-version: ${{ matrix.php-version }}
+
+  - name: Show PHP Version
+    run: php -v
+
+  - name: Validate PHP Syntax
+    run: |
+
+      find app public config database \
+      -name "*.php" \
+      -print0 | xargs -0 -n1 php -l
+
+  - name: Check Required Directories
+    run: |
+
+      test -d app
+      test -d app/Controllers
+      test -d app/Repositories
+      test -d app/Views
+      test -d public
+      test -d config
+      test -d storage
+
+  - name: Check Required Files
+    run: |
+
+      test -f public/index.php
+      test -f app/Core/Database.php
+      test -f app/Core/Router.php
+
+  - name: Create Log Directory
+    run: |
+
+      mkdir -p storage/logs
+      touch storage/logs/app.log
+
+  - name: Success
+    run: echo "Mini Clinic Appointment DB App CI Passed"
+```
